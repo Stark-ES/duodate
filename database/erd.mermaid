@@ -1,0 +1,127 @@
+erDiagram
+    users ||--o{ matching_queue : "waits in"
+    users ||--o{ matches : "participates as user_a"
+    users ||--o{ matches : "participates as user_b"
+    users ||--o{ interactions : "sends"
+    users ||--o{ user_tags : "has"
+    users ||--o{ chat_messages : "sends"
+    users ||--o{ linked_users : "links"
+    users ||--o{ user_reports : "reports"
+    users ||--o{ payments : "makes"
+    
+    matches ||--o{ interactions : "has"
+    matches ||--o| discord_rooms : "has"
+    matches ||--o{ chat_messages : "contains"
+    matches ||--o| linked_users : "results in"
+
+    users {
+        uuid id PK
+        string email UK
+        string nickname
+        enum gender "M, F"
+        string discord_id UK
+        enum my_type "V, F, R, C"
+        enum preferred_type "V, F, R, C"
+        int free_likes_today
+        int paid_likes
+        timestamp created_at
+    }
+
+    user_tags {
+        uuid id PK
+        uuid user_id FK
+        string tag
+    }
+
+    matching_queue {
+        uuid id PK
+        uuid user_id FK
+        enum game "LOL, TFT, OW, PUBG"
+        enum type "V, F, R, C"
+        enum status "WAITING, MATCHED"
+        int position
+        timestamp queued_at
+    }
+
+    matches {
+        uuid id PK
+        string match_code UK
+        uuid user_a_id FK
+        uuid user_b_id FK
+        enum game "LOL, TFT, OW, PUBG"
+        enum match_type "V, F, R, C"
+        enum status "CHATTING_5MIN, DECIDING, VOICE_1HOUR, EXPIRED, LINKED"
+        boolean user_a_chat_decision
+        boolean user_b_chat_decision
+        timestamp voice_started_at
+        timestamp voice_ended_at
+    }
+
+    interactions {
+        uuid id PK
+        uuid match_id FK
+        uuid from_user_id FK
+        uuid to_user_id FK
+        enum interaction "LIKE, PASS"
+        boolean is_paid
+        timestamp created_at
+    }
+
+    linked_users {
+        uuid id PK
+        uuid match_id FK
+        uuid user_a_id FK
+        uuid user_b_id FK
+        boolean profile_shared
+        boolean location_shared
+        timestamp linked_at
+    }
+
+    chat_messages {
+        uuid id PK
+        uuid match_id FK
+        uuid sender_id FK
+        string message_type
+        text content
+        timestamp created_at
+    }
+
+    discord_rooms {
+        uuid id PK
+        uuid match_id FK
+        string voice_channel_id
+        string text_channel_id
+        string server_id
+        text deep_link
+        boolean is_active
+        timestamp expires_at
+    }
+
+    icebreaker_messages {
+        uuid id PK
+        string message_type
+        enum match_type "V, F, R, C"
+        enum game "LOL, TFT, OW, PUBG"
+        string icon
+        text content
+        text option_a
+        text option_b
+    }
+
+    user_reports {
+        uuid id PK
+        uuid reporter_id FK
+        uuid reported_id FK
+        uuid match_id FK
+        string reason
+        string status
+    }
+
+    payments {
+        uuid id PK
+        uuid user_id FK
+        int amount
+        string product_type
+        string status
+        timestamp created_at
+    }
